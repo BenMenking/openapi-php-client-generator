@@ -377,15 +377,23 @@ foreach($paths as $className=>$path) {
     $output .= "\t}\n\n";
     $output .=  "}\n\n";
 
-    //file_put_contents($file, implode("\n", $use_output) . "\n\n", FILE_APPEND);
-    //file_put_contents($file, $class_output, FILE_APPEND);
-    //file_put_contents($file, "\tpublic function sendRequest(RequestInterface \$request): ResponseInterface {\n", FILE_APPEND);
-    //file_put_contents($file, "\t\treturn \$this->http->send(\$request);\n", FILE_APPEND);
-    //file_put_contents($file, "\t}\n\n", FILE_APPEND);
-   //file_put_contents($file, "}\n\n", FILE_APPEND);
-
     file_put_contents("$outputPath/Api/{$className}Api.php", $output);
 }
+
+echo "Updating composer.json\n";
+
+if( !file_exists('composer.json') ) die("Could not find composer.json.  Are you in the correct directory?\n");
+
+$composer = json_decode(file_get_contents('composer.json'), true);
+
+// need to add autoload/psr-4
+$composer['autoload'] = [
+    'psr-4'=>[
+        $namespace=>$outputPath
+    ]
+];
+
+file_put_contents('composer.json', json_encode($composer));
 
 echo "Completed\n";
 
