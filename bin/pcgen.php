@@ -12,14 +12,15 @@ $cli->description('Convert OpenApi file into PHP apis and models')
 $args = $cli->parse($argv, true);
 
 $namespace = $args->getOpt('namespace') ?? "Client\\Library\\";
+$filespace = explode('\\', $namespace)[1];
 
 $namespace_parts = explode('\\', $namespace);
 
 if( count($namespace_parts) < 2 || count($namespace_parts) > 2 ) die("Namespace must consist of only two levels\n");
 
-$outputPath = getcwd() . '/src/' . implode('/', $namespace_parts);
-@mkdir($outputPath . '/Api', 0777, true); // if it exists, don't bother with telling us
-@mkdir($outputPath . '/Model', 0777, true); // if it exists, don't bother with telling us
+$outputPath = "src/" . $filespace;
+@mkdir(getcwd() . $outputPath . '/Api', 0777, true); // if it exists, don't bother with telling us
+@mkdir(getcwd() . $outputPath . '/Model', 0777, true); // if it exists, don't bother with telling us
 
 $api = json_decode(file_get_contents($args->getOpt('file')), null, 1024, JSON_INVALID_UTF8_IGNORE);
 
@@ -113,7 +114,7 @@ foreach($api->components->schemas as $name=>$component) {
 
     $document .= "}\n\n";
 
-    file_put_contents("$outputPath/Model/{$name}Model.php", $document);
+    file_put_contents(getcwd() . "$outputPath/Model/{$name}Model.php", $document);
 }
 
 echo "Creating 'requestBodies'...\n";
@@ -141,7 +142,7 @@ foreach($api->components->requestBodies as $name=>$component) {
 
     $document .= "}\n\n";
 
-    file_put_contents("$outputPath/Model/{$name}Model.php", $document);
+    file_put_contents(getcwd() . "$outputPath/Model/{$name}Model.php", $document);
 }
 
 $models = [];
@@ -377,7 +378,7 @@ foreach($paths as $className=>$path) {
     $output .= "\t}\n\n";
     $output .=  "}\n\n";
 
-    file_put_contents("$outputPath/Api/{$className}Api.php", $output);
+    file_put_contents(getcwd() . "$outputPath/Api/{$className}Api.php", $output);
 }
 
 echo "Updating composer.json\n";
@@ -387,13 +388,15 @@ if( !file_exists('composer.json') ) die("Could not find composer.json.  Are you 
 $composer = json_decode(file_get_contents('composer.json'), true);
 
 // need to add autoload/psr-4
+if( isset($composer['autoload']) ) unset($composer['autoload']);
+
 $composer['autoload'] = [
     'psr-4'=>[
-        $namespace=>$outputPath
+        $namespace . '\\'=>$filespace
     ]
 ];
 
-file_put_contents('composer.json', json_encode($composer));
+file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT));
 
 echo "Completed\n";
 
