@@ -1,0 +1,25 @@
+{
+    "name": "bmenking/openapi-php-client-generator",
+    "description": "Generates code and docs for an OpenApi spec file for PHP",
+    "require": {
+        "php": "^7.4|^8.0",
+        "vanilla/garden-cli": "^3.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ben Menking",
+            "email": "ben@menking.net"
+        }
+    ],
+    "config": {
+        "bin-dir": "bin/",
+        "preferred-install": {
+            "*": "dist"
+        }
+    },
+    "bin": ["bin/pcgen.php", "bin/pcgen"],
+    "requires": {
+
+    }
+}
