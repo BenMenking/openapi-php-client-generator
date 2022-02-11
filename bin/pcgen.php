@@ -19,8 +19,10 @@ $namespace_parts = explode('\\', $namespace);
 if( count($namespace_parts) < 2 || count($namespace_parts) > 2 ) die("Namespace must consist of only two levels\n");
 
 $outputPath = "src/" . $filespace;
-@mkdir(getcwd() . $outputPath . '/Api', 0777, true); // if it exists, don't bother with telling us
-@mkdir(getcwd() . $outputPath . '/Model', 0777, true); // if it exists, don't bother with telling us
+
+@mkdir(getcwd() . '/' . $outputPath . '/Api', 0777, true); // if it exists, don't bother with telling us
+@mkdir(getcwd() . '/' . $outputPath . '/Model', 0777, true); // if it exists, don't bother with telling us
+
 
 $api = json_decode(file_get_contents($args->getOpt('file')), null, 1024, JSON_INVALID_UTF8_IGNORE);
 
@@ -114,7 +116,7 @@ foreach($api->components->schemas as $name=>$component) {
 
     $document .= "}\n\n";
 
-    file_put_contents(getcwd() . "$outputPath/Model/{$name}Model.php", $document);
+    file_put_contents(getcwd() . "/$outputPath/Model/{$name}Model.php", $document);
 }
 
 echo "Creating 'requestBodies'...\n";
@@ -142,7 +144,7 @@ foreach($api->components->requestBodies as $name=>$component) {
 
     $document .= "}\n\n";
 
-    file_put_contents(getcwd() . "$outputPath/Model/{$name}Model.php", $document);
+    file_put_contents(getcwd() . "/$outputPath/Model/{$name}Model.php", $document);
 }
 
 $models = [];
@@ -378,7 +380,7 @@ foreach($paths as $className=>$path) {
     $output .= "\t}\n\n";
     $output .=  "}\n\n";
 
-    file_put_contents(getcwd() . "$outputPath/Api/{$className}Api.php", $output);
+    file_put_contents(getcwd() . "/$outputPath/Api/{$className}Api.php", $output);
 }
 
 echo "Updating composer.json\n";
@@ -392,11 +394,11 @@ if( isset($composer['autoload']) ) unset($composer['autoload']);
 
 $composer['autoload'] = [
     'psr-4'=>[
-        $namespace . '\\'=>$filespace
+        $namespace . '\\'=>$outputPath
     ]
 ];
 
-file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT));
+file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
 echo "Completed\n";
 

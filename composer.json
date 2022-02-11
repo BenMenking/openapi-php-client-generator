@@ -18,5 +18,7 @@
             "*": "dist"
         }
     },
-    "bin": ["bin/pcgen.php"]
+    "bin": [
+        "bin/pcgen.php"
+    ]
 }
