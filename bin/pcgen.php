@@ -133,7 +133,7 @@ foreach($api->components->requestBodies as $name=>$component) {
     $document .= "namespace $namespace\\Model;\n\n";
     $document .= "use $namespace\\Model\\{$className}Model;\n\n";
 
-    $document .= "class $name {\n";
+    $document .= "class {$name}Model {\n";
     $document .= "\tpublic String \$contentType = '$contentType';\n";
     $document .= "\tpublic \$obj = null;\n\n";
 
@@ -303,7 +303,7 @@ foreach($paths as $className=>$path) {
             
                 if( $param->{'type'} === 'object' ) {
                     $parameters[] = $param->name . ' $' . lcfirst($param->name) . ((isset($param->required) && $param->required)?'':' = null');
-                    $use_text = "use $namespace\\Models\\" . $param->name . ";";
+                    $use_text = "use $namespace\\Model\\" . $param->name . ";";
                     if( array_search($use_text, $use_output) === false) {
                         $use_output[] = $use_text;
                     }

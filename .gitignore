@@ -1,2 +1,3 @@
 openapi.json
 vendor/*
+tests/*
