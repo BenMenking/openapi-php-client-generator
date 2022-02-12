@@ -349,6 +349,7 @@ foreach($paths as $className=>$path) {
                 $path_list[] = $name;
             }
         }
+        
         $query_list = array_filter($query_list);
         if( count($query_list) > 0 ) {
             $class_output .= "\t\t\$query = [\n";
@@ -364,11 +365,13 @@ foreach($paths as $className=>$path) {
             $class_output .= "\t\t}\n\n";            
         }
 
+        $body = '';
         if( $body_payload ) {
-            $class_output .= "\t\t\$options['body'] = json_encode(\${$body_payload}->obj->__serialize());\n";
+            //$class_output .= "\t\t\$options['body'] = json_encode(\${$body_payload}->obj->__serialize());\n";
+            $body = ", [], json_encode(\${$body_payload}->obj->__serialize())";
         }
 
-        $class_output .= "\t\t\$request = new Request('{$operation['http_method']}', \"{$operation['url']}\", \$options);\n\n";
+        $class_output .= "\t\t\$request = new Request('{$operation['http_method']}', \"{$operation['url']}\"{$body});\n\n";
         $class_output .= "\t\treturn \$this->sendRequest(\$request);\n";
         $class_output .= "\t}\n\n";
     }
