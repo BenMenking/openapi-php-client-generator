@@ -7,7 +7,8 @@ $cli = new Garden\Cli\Cli();
 
 $cli->description('Convert OpenApi file into PHP apis and models')
     ->opt('file:f', 'OpenApi file', true)
-    ->opt('namespace:n', 'Namespace to use, defaults to Client\\Library', false);
+    ->opt('namespace:n', 'Namespace to use, defaults to Client\\Library', false)
+    ->opt('skip-composer:s', 'Skip updating composer.json', false, 'boolean');
 
 $args = $cli->parse($argv, true);
 
@@ -117,6 +118,7 @@ foreach($api->components->schemas as $name=>$component) {
     $document .= "}\n\n";
 
     file_put_contents(getcwd() . "/$outputPath/Model/{$name}Model.php", $document);
+    echo "\tCreating model {$name}Model\n";
 }
 
 echo "Creating 'requestBodies'...\n";
@@ -145,6 +147,7 @@ foreach($api->components->requestBodies as $name=>$component) {
     $document .= "}\n\n";
 
     file_put_contents(getcwd() . "/$outputPath/Model/{$name}Model.php", $document);
+    echo "\tCreating model {$name}Model\n";
 }
 
 $models = [];
@@ -255,7 +258,10 @@ foreach($api->paths as $url=>$path) {
 }
  
 foreach($paths as $className=>$path) {
+    if( empty($className) ) continue;
+    
     $className = strtr($className, [' '=>'']);
+    echo "\t-- $className\n";
 
     if( empty($className) ) continue;
     
@@ -267,8 +273,6 @@ foreach($paths as $className=>$path) {
         "use GuzzleHttp\\Client;",
         "use GuzzleHttp\\Psr7\\Request;"
     ];
-
-    echo "Creating Api $className\n";
 
     $class_output = "class {$className}Api implements ClientInterface {\n";
     $class_output .= "\tprivate \$http;\n\n";
@@ -350,19 +354,15 @@ foreach($paths as $className=>$path) {
             }
         }
         
+        $class_output .= "\t\t\$url = '{$operation['url']}'\n\n";
+
         $query_list = array_filter($query_list);
         if( count($query_list) > 0 ) {
             $class_output .= "\t\t\$query = [\n";
             $class_output .= implode(",\n", $query_list);
             $class_output .= "\n\t\t];\n";
             $class_output .= "\t\t\$query = array_filter(\$query);\n\n";
-        }
-
-        $class_output .= "\t\t\$options = [];\n";
-        if( count($query_list) > 0 ) {
-            $class_output .= "\t\tif( count(\$query) > 0 ) {\n";
-            $class_output .= "\t\t\t\$options['query'] = \$query;\n";
-            $class_output .= "\t\t}\n\n";            
+            $class_output .= "\t\t\$url .= '?' . http_build_query(\$query);\n\n";
         }
 
         $body = '';
@@ -384,24 +384,26 @@ foreach($paths as $className=>$path) {
     $output .=  "}\n\n";
 
     file_put_contents(getcwd() . "/$outputPath/Api/{$className}Api.php", $output);
+    echo "\tCreating api {$className}Api\n";
 }
 
-echo "Updating composer.json\n";
+if( !$args->getOpt('skip-composer', false) ) {
+    echo "Updating composer.json\n";
 
-if( !file_exists('composer.json') ) die("Could not find composer.json.  Are you in the correct directory?\n");
+    if( !file_exists('composer.json') ) die("Could not find composer.json.  Are you in the correct directory?\n");
 
-$composer = json_decode(file_get_contents('composer.json'), true);
+    $composer = json_decode(file_get_contents('composer.json'), true);
 
-// need to add autoload/psr-4
-if( isset($composer['autoload']) ) unset($composer['autoload']);
+    // need to add autoload/psr-4
+    if( isset($composer['autoload']) ) unset($composer['autoload']);
 
-$composer['autoload'] = [
-    'psr-4'=>[
-        $namespace . '\\'=>$outputPath
-    ]
-];
+    $composer['autoload'] = [
+        'psr-4'=>[
+            $namespace . '\\'=>$outputPath
+        ]
+    ];
 
-file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
+    file_put_contents('composer.json', json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+}
 echo "Completed\n";
 
