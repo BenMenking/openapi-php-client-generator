@@ -243,7 +243,7 @@ class ApiHandler {
                 $param_list = [];
                 foreach($method->body as $param) {
                     $new_param_name = lcfirst(substr($param->schema, 0, strpos($param->schema, 'Model')));
-                    $param_list[] = "json_encode(\${$new_param_name}->obj->__serialize())";
+                    $param_list[] = "json_encode(\${$new_param_name}->__serialize())";
                 }
                 $body .= implode(' . ', $param_list);
             }

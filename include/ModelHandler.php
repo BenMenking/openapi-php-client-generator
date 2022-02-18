@@ -185,7 +185,7 @@ class ModelHandler {
         $document .= "\t\t\t\t\$list[\$key] = \$this->{\$key};\n";
         $document .= "\t\t\t}\n";
         $document .= "\t\t}\n";
-        $document .= "\t\treturn \$list;\n";
+        $document .= "\t\treturn (count(\$list)==1?array_shift(\$list):\$list);\n";
         $document .= "\t}\n";
 
         $document .= "}\n\n";
