@@ -232,7 +232,7 @@ class ApiHandler {
             // build the full query list
             $query_list = [];
             foreach($method->query as $q) {
-                $query_list[] = $q->name;
+                $query_list[] = "'" . $q->name . "'=>\${$q->name}";
             }
 
             // filter out any null values
@@ -240,7 +240,7 @@ class ApiHandler {
 
             if( count($query_list) > 0 ) {
                 $output .= "\t\t\$query = [\n";
-                $output .= "\t\t\t\$" . implode(",\n\t\t\t\$", $query_list);
+                $output .= "\t\t\t" . implode(",\n\t\t\t", $query_list);
                 $output .= "\n\t\t];\n";
                 $output .= "\t\t\$query = array_filter(\$query);\n\n";
                 $output .= "\t\t\$url = \$this->url . '?' . http_build_query(\$query);\n\n";
