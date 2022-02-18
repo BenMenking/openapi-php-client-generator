@@ -144,20 +144,10 @@ class ModelHandler {
                         }
                         break;
                     case "integer":
-                        $document .= "\tpublic \${$prop->name} = null;\n\n";
-                        break;
                     case "boolean":
-                        $document .= "\tpublic \${$prop->name} = null;\n\n";                    
-                        break;
                     case "array":
-                        $document .= "\tpublic \${$prop->name} = null;\n\n";                    
-                        break;
                     case "number":
-                        $document .= "\tpublic \${$prop->name} = null;\n\n";                                        
-                        break;
                     case "object":
-                        $document .= "\tpublic \${$prop->name} = null;\n\n";                                        
-                        break;
                     default:
                         $document .= "\tpublic \${$prop->name} = null;\n\n";                                        
                 }

@@ -22,7 +22,7 @@ class ApiHandler {
                 foreach($x as &$t) {
                     $t = ucfirst($t);
                 }
-                $tag = implode('', $x) . 'Api';
+                $tag = implode('', $x);
 
                 if( !isset($this->apis[$tag]) ) {
                     $a = new Api($tag);
@@ -39,6 +39,7 @@ class ApiHandler {
                     $a->vars = [
                         'http'=>'private'
                     ];
+                    $a->className = $tag . 'Api';
                     $this->apis[$tag] = $a;                 
                 }
             }
@@ -173,7 +174,7 @@ class ApiHandler {
 
             @mkdir($outputPath . '/Api', 0777, true); // if it exists, don't bother with telling us
             
-            file_put_contents("$outputPath/Api/{$api->name}.php", $code);
+            file_put_contents("$outputPath/Api/{$api->className}.php", $code);
         }
     }
 
@@ -184,10 +185,11 @@ class ApiHandler {
         }
         $output .= "\n";
 
-        $output .= "class {$api->name} implements ClientInterface {\n";
+        $output .= "class {$api->className} implements ClientInterface {\n";
         foreach($api->vars as $name=>$scope) {
             $output .= "\t$scope \${$name};\n";
         }
+        $output .= "\tprivate \$url = '{$api->url}';\n";
         $output .= "\n";
 
         $output .= "\tpublic function __construct(\$endpoint, \$username, \$password) {\n";
@@ -218,9 +220,6 @@ class ApiHandler {
                 
             $output .= ") {\n";
 
-            // body of function
-            $output .= "\t\t\$url = '{$api->url}';\n\n";
-
             // build the full query list
             $query_list = [];
             foreach($method->query as $q) {
@@ -235,7 +234,7 @@ class ApiHandler {
                 $output .= "\t\t\t\$" . implode(",\n\t\t\t\$", $query_list);
                 $output .= "\n\t\t];\n";
                 $output .= "\t\t\$query = array_filter(\$query);\n\n";
-                $output .= "\t\t\$url .= '?' . http_build_query(\$query);\n\n";
+                $output .= "\t\t\$url = \$this->url . '?' . http_build_query(\$query);\n\n";
             }
 
             $body = '';
@@ -254,7 +253,7 @@ class ApiHandler {
             $output .= "\t}\n\n";
         }
                     
-        $output .= "\tpublic function sendRequest(RequestInterface \$request): ResponseInterface {\n";
+        $output .= "\tprotected function sendRequest(RequestInterface \$request): ResponseInterface {\n";
         $output .= "\t\treturn \$this->http->send(\$request);\n";
         $output .= "\t}\n\n";
         $output .= "}\n\n";
