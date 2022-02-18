@@ -3,7 +3,8 @@
     "description": "Generates code and docs for an OpenApi spec file for PHP",
     "require": {
         "php": "^7.4|^8.0",
-        "vanilla/garden-cli": "^3.1"
+        "vanilla/garden-cli": "^3.1",
+        "composer-runtime-api": "^2.2"
     },
     "license": "MIT",
     "authors": [

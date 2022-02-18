@@ -1,10 +1,19 @@
 #!/usr/bin/env php
 <?php
 
-require('vendor/autoload.php');
-require('include/OpenApiParser.php');
-require('include/ApiHandler.php');
-require('include/ModelHandler.php');
+include $_composer_autoload_path ?? 'vendor/autoload.php';
+
+try {
+    $install_path = \Composer\InstalledVersions::getInstallPath('bmenking/openapi-php-client-generator');
+    require($install_path . '/include/OpenApiParser.php');
+    require($install_path . '/include/ApiHandler.php');
+    require($install_path . '/include/ModelHandler.php');
+}
+catch(OutOfBoundsException $ex) {
+    require('include/OpenApiParser.php');
+    require('include/ApiHandler.php');
+    require('include/ModelHandler.php');
+}
 
 $cli = new Garden\Cli\Cli();
 
