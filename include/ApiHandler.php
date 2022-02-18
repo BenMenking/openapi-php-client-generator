@@ -253,7 +253,7 @@ class ApiHandler {
             $output .= "\t}\n\n";
         }
                     
-        $output .= "\tprotected function sendRequest(RequestInterface \$request): ResponseInterface {\n";
+        $output .= "\tpublic function sendRequest(RequestInterface \$request): ResponseInterface {\n";
         $output .= "\t\treturn \$this->http->send(\$request);\n";
         $output .= "\t}\n\n";
         $output .= "}\n\n";
