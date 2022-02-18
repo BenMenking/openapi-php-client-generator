@@ -201,10 +201,19 @@ class ApiHandler {
             $output .= "\tpublic function {$method->name}(";
 
             if( count($method->query) > 0 ) {
-                $query_params = [];
+                $query_params_required = [];
+                $query_params_optional = [];
+
                 foreach($method->query as $query_param) {
-                    $query_params[] = "\${$query_param->name}";
+                    if( isset($query_param->required) && $query_param->required ) {
+                        $query_params_required[] = "\${$query_param->name}";
+                    }
+                    else {
+                        $query_params_optional[] = "\${$query_param->name} = null";
+                    }
                 }
+
+                $query_params = array_merge($query_params_required, $query_params_optional);
 
                 $output .= implode(", ", $query_params);
             }
